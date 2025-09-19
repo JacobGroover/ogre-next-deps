@@ -94,7 +94,11 @@ add_custom_target(add-copyright
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   COMMENT "Add copyright")
 
+# --- MSVC /EHsc fix ---
 if(MSVC)
+  # Global compile option for all targets in shaderc
+    add_compile_options(/EHsc)
+
   option(SHADERC_ENABLE_SHARED_CRT
           "Use the shared CRT instead of the static CRT"
           ${SHADERC_ENABLE_SHARED_CRT})
@@ -123,6 +127,19 @@ add_subdirectory(libshaderc_util)
 add_subdirectory(libshaderc)
 add_subdirectory(glslc)
 add_subdirectory(examples)
+
+# --- Per-target /EHsc for MSVC ---
+if(MSVC)
+    if(TARGET SPIRV)
+        target_compile_options(SPIRV PUBLIC /EHsc)
+    endif()
+    if(TARGET glslang)
+        target_compile_options(glslang PUBLIC /EHsc)
+    endif()
+    if(TARGET libshaderc)
+        target_compile_options(libshaderc PUBLIC /EHsc)
+    endif()
+endif()
 
 add_custom_target(build-version
   ${PYTHON_EXECUTABLE}
